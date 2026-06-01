@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base de Dades Dossiers i Àudios</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{background:linear-gradient(135deg,#dbeafe,#f8fafc);min-height:100vh;}
+.glass{background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);}
+@media print{
+body *{visibility:hidden;}
+#printArea,#printArea *{visibility:visible;}
+#printArea{display:block!important;position:absolute;left:0;top:0;width:100%;background:white;padding:10px;font-size:10px;line-height:1.05;}
+.no-print{display:none!important;}
+}
+</style>
+</head>
+<body class="p-6 text-gray-800">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-10">
+<h1 class="text-5xl font-bold text-blue-900 mb-3">Base de Dades de Dossiers i Àudios</h1>
+<p class="text-gray-600 text-lg">Consulta documental amb enllaços de OneDrive</p>
+</div>
+
+<div id="menuInicial">
+<div class="grid md:grid-cols-3 gap-8">
+<div class="glass rounded-3xl shadow-2xl p-8 text-center">
+<div class="text-7xl mb-5">🔐</div>
+<h2 class="text-3xl font-bold text-blue-900 mb-6">Vols afegir un dossier?</h2>
+<button id="btnAfegir" class="bg-blue-700 hover:bg-blue-800 transition text-white px-8 py-4 rounded-2xl text-xl shadow-xl">Accedir</button>
+</div>
+<div class="glass rounded-3xl shadow-2xl p-8 text-center">
+<div class="text-7xl mb-5">📚</div>
+<h2 class="text-3xl font-bold text-blue-900 mb-6">Vols consultar dossiers?</h2>
+<button id="btnConsultar" class="bg-green-700 hover:bg-green-800 transition text-white px-8 py-4 rounded-2xl text-xl shadow-xl">Consultar</button>
+</div>
+<div class="glass rounded-3xl shadow-2xl p-8 text-center">
+<div class="text-7xl mb-5">📄</div>
+<h2 class="text-3xl font-bold text-blue-900 mb-6">Llistat Dossiers</h2>
+<button id="btnLlistat" class="bg-purple-700 hover:bg-purple-800 transition text-white px-8 py-4 rounded-2xl text-xl shadow-xl">Veure llistat</button>
+</div>
+<div class="glass rounded-3xl shadow-2xl p-8 text-center">
+<div class="text-7xl mb-5">🎵</div>
+<h2 class="text-3xl font-bold text-blue-900 mb-6">Vols afegir un àudio?</h2>
+<button id="btnAfegirAudio" class="bg-orange-600 hover:bg-orange-700 transition text-white px-8 py-4 rounded-2xl text-xl shadow-xl">Accedir</button>
+</div>
+<div class="glass rounded-3xl shadow-2xl p-8 text-center">
+<div class="text-7xl mb-5">🎧</div>
+<h2 class="text-3xl font-bold text-blue-900 mb-6">Vols consultar àudios?</h2>
+<button id="btnConsultarAudios" class="bg-teal-700 hover:bg-teal-800 transition text-white px-8 py-4 rounded-2xl text-xl shadow-xl">Consultar</button>
+</div>
+<div class="glass rounded-3xl shadow-2xl p-8 text-center">
+<div class="text-7xl mb-5">📻</div>
+<h2 class="text-3xl font-bold text-blue-900 mb-6">Llistat d'àudios</h2>
+<button id="btnLlistatAudios" class="bg-pink-700 hover:bg-pink-800 transition text-white px-8 py-4 rounded-2xl text-xl shadow-xl">Veure llistat</button>
+</div>
+</div>
+</div>
+
+<div id="loginSection" class="hidden">
+<div class="glass rounded-3xl shadow-2xl p-8 max-w-xl mx-auto">
+<h2 class="text-4xl font-bold text-blue-900 mb-6 text-center">Contrasenya</h2>
+<input type="password" id="passwordInput" class="w-full p-4 border rounded-2xl text-lg" placeholder="Introdueix la contrasenya">
+<button id="loginBtn" class="w-full mt-6 bg-blue-700 hover:bg-blue-800 text-white p-4 rounded-2xl text-xl">Entrar</button>
+<button id="tornarLogin" class="w-full mt-4 bg-gray-700 hover:bg-gray-800 text-white p-4 rounded-2xl">Tornar</button>
+<div id="loginMessage" class="mt-5 text-center font-bold text-red-700"></div>
+</div>
+</div>
+
+<div id="afegirSection" class="hidden">
+<div class="glass rounded-3xl shadow-2xl p-8">
+<div class="flex justify-between items-center mb-8"><h2 class="text-4xl font-bold text-blue-900">Afegir dossier</h2><button id="tornar1" class="bg-gray-700 hover:bg-gray-800 text-white px-5 py-3 rounded-xl">Tornar</button></div>
+<div class="grid lg:grid-cols-2 gap-6">
+<div><label class="font-bold">Nom del dossier</label><input type="text" id="name" class="w-full p-3 border rounded-xl mt-2"></div>
+<div><label class="font-bold">Número de pàgines</label><input type="number" id="pages" class="w-full p-3 border rounded-xl mt-2"></div>
+<div class="lg:col-span-2"><label class="font-bold">Enllaç de OneDrive del dossier</label><input type="url" id="fileUrl" class="w-full p-3 border rounded-xl mt-2" placeholder="https://1drv.ms/..."><p class="text-sm text-gray-600 mt-2">Enganxa aquí l'enllaç públic que has copiat de OneDrive.</p></div>
+</div>
+<button id="guardarBtn" class="mt-8 bg-blue-700 hover:bg-blue-800 transition text-white px-8 py-4 rounded-2xl text-xl shadow-xl">Guardar dossier</button>
+<div id="missatge" class="mt-6 text-green-700 font-bold text-lg"></div>
+<div class="mt-10"><h3 class="text-2xl font-bold text-blue-900 mb-5">Dossiers guardats</h3><div id="llistaDossiers" class="space-y-4"></div></div>
+</div>
+</div>
+
+<div id="consultaSection" class="hidden"><div class="glass rounded-3xl shadow-2xl p-8"><div class="flex justify-between items-center mb-8"><h2 class="text-4xl font-bold text-blue-900">Consultar dossiers</h2><button id="tornar2" class="bg-gray-700 hover:bg-gray-800 text-white px-5 py-3 rounded-xl">Tornar</button></div><input type="text" id="searchWord" placeholder="Que contingui la paraula..." class="w-full p-4 border rounded-2xl mb-8 text-lg"><div id="results" class="space-y-4"></div></div></div>
+
+<div id="llistatSection" class="hidden"><div class="glass rounded-3xl shadow-2xl p-8"><div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-8 no-print"><h2 class="text-4xl font-bold text-purple-900">Llistat de Dossiers</h2><div class="flex gap-4 flex-wrap"><button id="tornarLlistat" class="bg-gray-700 hover:bg-gray-800 text-white px-5 py-3 rounded-xl">↩ Tornar</button><button onclick="imprimirLlistatDossiers()" class="bg-purple-700 hover:bg-purple-800 text-white px-5 py-3 rounded-xl shadow">🖨 Imprimir llistat</button><button onclick="descarregarPDFDossiers()" class="bg-green-700 hover:bg-green-800 text-white px-5 py-3 rounded-xl shadow">📥 Descarregar PDF</button></div></div><div id="llistatDossiersVisible" class="space-y-4 no-print"></div></div></div>
+
+<div id="afegirAudioSection" class="hidden"><div class="glass rounded-3xl shadow-2xl p-8"><div class="flex justify-between items-center mb-8"><h2 class="text-4xl font-bold text-orange-700">Afegir àudio</h2><button id="tornarAudio1" class="bg-gray-700 hover:bg-gray-800 text-white px-5 py-3 rounded-xl">Tornar</button></div><div class="grid lg:grid-cols-2 gap-6"><div><label class="font-bold">Nom de la pista</label><input type="text" id="audioName" class="w-full p-3 border rounded-xl mt-2"></div><div><label class="font-bold">Duració</label><input type="text" id="audioDuration" class="w-full p-3 border rounded-xl mt-2" placeholder="Exemple: 03:25"></div><div class="lg:col-span-2"><label class="font-bold">Enllaç de OneDrive de l'àudio</label><input type="url" id="audioUrl" class="w-full p-3 border rounded-xl mt-2" placeholder="https://1drv.ms/..."><p class="text-sm text-gray-600 mt-2">Enganxa aquí l'enllaç públic de l'MP3 a OneDrive.</p></div></div><button id="guardarAudioBtn" class="mt-8 bg-orange-600 hover:bg-orange-700 transition text-white px-8 py-4 rounded-2xl text-xl shadow-xl">Guardar àudio</button><div id="missatgeAudio" class="mt-6 text-green-700 font-bold text-lg"></div><div class="mt-10"><h3 class="text-2xl font-bold text-orange-700 mb-5">Àudios guardats</h3><div id="llistaAudios" class="space-y-4"></div></div></div></div>
+
+<div id="consultaAudioSection" class="hidden"><div class="glass rounded-3xl shadow-2xl p-8"><div class="flex justify-between items-center mb-8"><h2 class="text-4xl font-bold text-teal-800">Consultar àudios</h2><button id="tornarAudio2" class="bg-gray-700 hover:bg-gray-800 text-white px-5 py-3 rounded-xl">Tornar</button></div><input type="text" id="searchAudioWord" placeholder="Que contingui la paraula..." class="w-full p-4 border rounded-2xl mb-8 text-lg"><div id="audioResults" class="space-y-4"></div></div></div>
+
+<div id="llistatAudioSection" class="hidden"><div class="glass rounded-3xl shadow-2xl p-8"><div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-8 no-print"><h2 class="text-4xl font-bold text-pink-800">Llistat d'àudios</h2><div class="flex gap-4 flex-wrap"><button id="tornarLlistatAudio" class="bg-gray-700 hover:bg-gray-800 text-white px-5 py-3 rounded-xl">↩ Tornar</button><button onclick="imprimirLlistatAudios()" class="bg-pink-700 hover:bg-pink-800 text-white px-5 py-3 rounded-xl shadow">🖨 Imprimir llistat</button><button onclick="descarregarPDFAudios()" class="bg-green-700 hover:bg-green-800 text-white px-5 py-3 rounded-xl shadow">📥 Descarregar PDF</button></div></div><div id="llistatAudiosVisible" class="space-y-4 no-print"></div></div></div>
+
+<div id="printArea" class="hidden"><div class="mb-4 border-b pb-2"><h1 id="printTitle" class="text-xl font-bold text-blue-900 mb-1">Llistat General</h1><p id="printSubtitle" class="text-xs text-gray-600">Base de dades</p><p class="text-xs text-gray-500 mt-1">Data: <span id="dataActual"></span></p><p class="text-xs text-gray-500"><span id="printTotalLabel">Total:</span> <span id="totalDossiersPrint"></span></p></div><div id="llistatPrint" class="space-y-1"></div></div>
+
+<div id="contadorAudios" class="fixed bottom-5 left-6 bg-gradient-to-r from-orange-600 to-pink-700 text-white px-6 py-4 rounded-3xl shadow-2xl border border-orange-300 flex items-center gap-4"><div class="text-5xl">🎵</div><div><div class="text-xs uppercase tracking-widest opacity-80">Base d'àudios</div><div id="contadorAudioNumero" class="text-4xl font-bold leading-none">0</div><div class="text-sm opacity-90">pistes d'àudio</div></div></div>
+<div id="contadorDossiers" class="fixed bottom-5 right-6 bg-gradient-to-r from-blue-700 to-blue-900 text-white px-6 py-4 rounded-3xl shadow-2xl border border-blue-300 flex items-center gap-4"><div class="text-5xl">📚</div><div><div class="text-xs uppercase tracking-widest opacity-80">Base de dades</div><div id="contadorNumero" class="text-4xl font-bold leading-none">0</div><div class="text-sm opacity-90">dossiers introduïts</div></div></div>
+</div>
+
+<script>
+const PASSWORD = "ADMON90";
+const LOGIN_ATTEMPTS_KEY = "loginAttempts";
+const LOCK_UNTIL_KEY = "lockUntil";
+let dossiers = JSON.parse(localStorage.getItem("dossiers")) || [];
+let audios = JSON.parse(localStorage.getItem("audios")) || [];
+let editIndex = null;
+let editAudioIndex = null;
+let loginMode = "dossier";
+
+function normalitzar(text){return String(text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");}
+function actualitzarContador(){document.getElementById("contadorNumero").innerHTML=dossiers.length;document.getElementById("contadorAudioNumero").innerHTML=audios.length;}
+function ordenarDossiers(){dossiers.sort((a,b)=>a.name.localeCompare(b.name,'ca',{sensitivity:'base'}));}
+function ordenarAudios(){audios.sort((a,b)=>a.name.localeCompare(b.name,'ca',{sensitivity:'base'}));}
+function posarData(){document.getElementById("dataActual").innerHTML=new Date().toLocaleDateString('ca-ES');}
+function ocultarTot(){["menuInicial","loginSection","afegirSection","consultaSection","llistatSection","afegirAudioSection","consultaAudioSection","llistatAudioSection"].forEach(id=>document.getElementById(id).classList.add("hidden"));}
+function mostrarMenu(){ocultarTot();document.getElementById("menuInicial").classList.remove("hidden");}
+function mostrarLogin(mode){loginMode=mode;ocultarTot();document.getElementById("loginSection").classList.remove("hidden");document.getElementById("passwordInput").value="";document.getElementById("loginMessage").innerHTML="";document.getElementById("passwordInput").focus();}
+function obrirSeccioAfegir(){ocultarTot();if(loginMode==="audio"){document.getElementById("afegirAudioSection").classList.remove("hidden");mostrarLlistaAudios();}else{document.getElementById("afegirSection").classList.remove("hidden");mostrarLlista();}}
+function comprovarLogin(){const lockUntil=Number(localStorage.getItem(LOCK_UNTIL_KEY))||0;if(Date.now()<lockUntil){const minuts=Math.ceil((lockUntil-Date.now())/60000);document.getElementById("loginMessage").innerHTML="Usuari bloquejat. Torna-ho a provar en "+minuts+" minuts.";return;}const password=document.getElementById("passwordInput").value;if(password===PASSWORD){localStorage.removeItem(LOGIN_ATTEMPTS_KEY);localStorage.removeItem(LOCK_UNTIL_KEY);obrirSeccioAfegir();return;}let intents=Number(localStorage.getItem(LOGIN_ATTEMPTS_KEY))||0;intents++;localStorage.setItem(LOGIN_ATTEMPTS_KEY,intents);if(intents>=5){localStorage.setItem(LOCK_UNTIL_KEY,Date.now()+60*60*1000);document.getElementById("loginMessage").innerHTML="Has superat els 5 intents. Usuari bloquejat durant 1 hora.";}else{document.getElementById("loginMessage").innerHTML="Contrasenya incorrecta. Intent "+intents+" de 5.";}}
+
+document.getElementById("btnAfegir").onclick=()=>mostrarLogin("dossier");
+document.getElementById("btnAfegirAudio").onclick=()=>mostrarLogin("audio");
+document.getElementById("btnConsultar").onclick=()=>{ocultarTot();document.getElementById("consultaSection").classList.remove("hidden");document.getElementById("searchWord").value="";mostrarResultats(dossiers);};
+document.getElementById("btnConsultarAudios").onclick=()=>{ocultarTot();document.getElementById("consultaAudioSection").classList.remove("hidden");document.getElementById("searchAudioWord").value="";mostrarResultatsAudios(audios);};
+document.getElementById("btnLlistat").onclick=()=>{ocultarTot();document.getElementById("llistatSection").classList.remove("hidden");mostrarLlistat();};
+document.getElementById("btnLlistatAudios").onclick=()=>{ocultarTot();document.getElementById("llistatAudioSection").classList.remove("hidden");mostrarLlistatAudios();};
+document.getElementById("loginBtn").onclick=comprovarLogin;
+document.getElementById("passwordInput").addEventListener("keydown",e=>{if(e.key==="Enter")comprovarLogin();});
+["tornarLogin","tornar1","tornar2","tornarLlistat","tornarAudio1","tornarAudio2","tornarLlistatAudio"].forEach(id=>document.getElementById(id).onclick=mostrarMenu);
+
+document.getElementById("guardarBtn").onclick=guardarDossier;
+function guardarDossier(){const name=document.getElementById("name").value.trim();const pages=document.getElementById("pages").value.trim();const fileUrl=document.getElementById("fileUrl").value.trim();if(!name||!pages||!fileUrl){alert("Omple el nom, les pàgines i l'enllaç de OneDrive");return;}const dossier={id:Date.now(),name,pages,fileUrl};if(editIndex!==null){dossiers[editIndex]=dossier;editIndex=null;}else{dossiers.push(dossier);}ordenarDossiers();localStorage.setItem("dossiers",JSON.stringify(dossiers));mostrarLlista();actualitzarContador();document.getElementById("missatge").innerHTML="Dossier guardat correctament";netejarFormulari();}
+function mostrarLlista(){const llista=document.getElementById("llistaDossiers");llista.innerHTML="";ordenarDossiers();if(dossiers.length===0){llista.innerHTML=`<div class="text-gray-600">Encara no hi ha dossiers guardats.</div>`;return;}dossiers.forEach((doc,index)=>{llista.innerHTML+=`<div class="bg-white p-5 rounded-2xl shadow-lg border border-gray-200"><div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4"><div><div class="font-bold text-xl text-blue-700">${doc.name}</div><div class="text-sm text-gray-600 mt-1">${doc.pages} pàgines</div></div><div class="flex gap-3 flex-wrap"><button onclick="window.open('${doc.fileUrl}','_blank')" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-xl shadow">Obrir</button><button onclick="editarDossier(${index})" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-xl shadow">Editar</button><button onclick="eliminarDossier(${index})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl shadow">Eliminar</button></div></div></div>`;});}
+function editarDossier(index){const doc=dossiers[index];document.getElementById("name").value=doc.name;document.getElementById("pages").value=doc.pages;document.getElementById("fileUrl").value=doc.fileUrl||"";editIndex=index;document.getElementById("missatge").innerHTML="Estàs editant aquest dossier.";window.scrollTo({top:0,behavior:'smooth'});}
+function eliminarDossier(index){if(confirm("Vols eliminar aquest dossier?")){dossiers.splice(index,1);ordenarDossiers();localStorage.setItem("dossiers",JSON.stringify(dossiers));mostrarLlista();actualitzarContador();}}
+function netejarFormulari(){document.getElementById("name").value="";document.getElementById("pages").value="";document.getElementById("fileUrl").value="";document.getElementById("name").focus();}
+document.getElementById("searchWord").addEventListener("input",e=>{const text=normalitzar(e.target.value);mostrarResultats(dossiers.filter(doc=>normalitzar(doc.name).includes(text)));});
+function mostrarResultats(data){const results=document.getElementById("results");results.innerHTML="";const ordenats=[...data].sort((a,b)=>a.name.localeCompare(b.name,'ca',{sensitivity:'base'}));if(ordenats.length===0){results.innerHTML=`<div class="text-gray-600">No s'han trobat dossiers.</div>`;return;}ordenats.forEach(doc=>{results.innerHTML+=`<div class="bg-white p-5 rounded-2xl shadow-lg border border-gray-200"><div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4"><div><div class="font-bold text-xl text-blue-700">${doc.name}</div><div class="text-sm text-gray-600 mt-1">${doc.pages} pàgines</div></div><div class="flex gap-3 flex-wrap"><button onclick="window.open('${doc.fileUrl}','_blank')" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-xl shadow">📄 Veure dossier</button></div></div></div>`;});}
+
+function mostrarLlistat(){prepararPrint("Llistat General de Dossiers","Base de dades documental","Total dossiers:",dossiers.length);const zonaPrint=document.getElementById("llistatPrint");const zonaVisible=document.getElementById("llistatDossiersVisible");zonaPrint.innerHTML="";zonaVisible.innerHTML="";ordenarDossiers();if(dossiers.length===0){zonaVisible.innerHTML=`<div class="text-gray-600">No hi ha dossiers per mostrar.</div>`;zonaPrint.innerHTML=`<div>No hi ha dossiers per mostrar.</div>`;return;}dossiers.forEach((doc,index)=>{zonaPrint.innerHTML+=`<div class="bg-white border border-gray-200 rounded-lg p-1"><div class="flex gap-2 items-center"><div class="text-xs font-bold text-purple-700 w-6">${index+1}.</div><div class="text-xs font-semibold text-blue-800">${doc.name}</div><div class="text-xs text-gray-500">(${doc.pages} pàg.)</div></div></div>`;zonaVisible.innerHTML+=`<div class="bg-white p-5 rounded-2xl shadow-lg border border-gray-200"><div class="flex gap-3 items-center"><div class="font-bold text-purple-700 w-10">${index+1}.</div><div class="flex-1"><div class="font-bold text-xl text-blue-700">${doc.name}</div><div class="text-sm text-gray-600 mt-1">${doc.pages} pàgines</div></div><button onclick="window.open('${doc.fileUrl}','_blank')" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-xl shadow">Obrir</button></div></div>`;});}
+
+document.getElementById("guardarAudioBtn").onclick=guardarAudio;
+function guardarAudio(){const name=document.getElementById("audioName").value.trim();const duration=document.getElementById("audioDuration").value.trim()||"00:00";const fileUrl=document.getElementById("audioUrl").value.trim();if(!name||!fileUrl){alert("Omple el nom de la pista i l'enllaç de OneDrive");return;}const audio={id:Date.now(),name,duration,fileUrl};if(editAudioIndex!==null){audios[editAudioIndex]=audio;editAudioIndex=null;}else{audios.push(audio);}ordenarAudios();localStorage.setItem("audios",JSON.stringify(audios));mostrarLlistaAudios();actualitzarContador();document.getElementById("missatgeAudio").innerHTML="Àudio guardat correctament";netejarFormulariAudio();}
+function audioCard(audio,index,admin){const editButtons=admin?`<button onclick="editarAudio(${index})" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-xl shadow">Editar</button><button onclick="eliminarAudio(${index})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl shadow">Eliminar</button>`:"";return `<div class="bg-white p-5 rounded-2xl shadow-lg border border-gray-200"><div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4"><div><div class="font-bold text-xl text-orange-700">${audio.name}</div><div class="text-sm text-gray-600 mt-1">Duració: ${audio.duration||"00:00"}</div></div><div class="flex gap-3 flex-wrap">${editButtons}<button onclick="window.open('${audio.fileUrl}','_blank')" class="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl shadow">🎧 Escoltar / obrir</button></div></div></div>`;}
+function mostrarLlistaAudios(){const llista=document.getElementById("llistaAudios");llista.innerHTML="";ordenarAudios();if(audios.length===0){llista.innerHTML=`<div class="text-gray-600">Encara no hi ha àudios guardats.</div>`;return;}audios.forEach((audio,index)=>llista.innerHTML+=audioCard(audio,index,true));}
+function editarAudio(index){const audio=audios[index];document.getElementById("audioName").value=audio.name;document.getElementById("audioDuration").value=audio.duration||"00:00";document.getElementById("audioUrl").value=audio.fileUrl||"";editAudioIndex=index;document.getElementById("missatgeAudio").innerHTML="Estàs editant aquest àudio.";window.scrollTo({top:0,behavior:'smooth'});}
+function eliminarAudio(index){if(confirm("Vols eliminar aquest àudio?")){audios.splice(index,1);ordenarAudios();localStorage.setItem("audios",JSON.stringify(audios));mostrarLlistaAudios();actualitzarContador();}}
+function netejarFormulariAudio(){document.getElementById("audioName").value="";document.getElementById("audioDuration").value="";document.getElementById("audioUrl").value="";document.getElementById("audioName").focus();}
+document.getElementById("searchAudioWord").addEventListener("input",e=>{const text=normalitzar(e.target.value);mostrarResultatsAudios(audios.filter(audio=>normalitzar(audio.name).includes(text)));});
+function mostrarResultatsAudios(data){const results=document.getElementById("audioResults");results.innerHTML="";const ordenats=[...data].sort((a,b)=>a.name.localeCompare(b.name,'ca',{sensitivity:'base'}));if(ordenats.length===0){results.innerHTML=`<div class="text-gray-600">No s'han trobat àudios.</div>`;return;}ordenats.forEach(audio=>results.innerHTML+=audioCard(audio,-1,false));}
+function mostrarLlistatAudios(){prepararPrint("Llistat General d'Àudios","Base de dades d'àudios","Total àudios:",audios.length);const zonaPrint=document.getElementById("llistatPrint");const zonaVisible=document.getElementById("llistatAudiosVisible");zonaPrint.innerHTML="";zonaVisible.innerHTML="";ordenarAudios();if(audios.length===0){zonaVisible.innerHTML=`<div class="text-gray-600">No hi ha àudios per mostrar.</div>`;zonaPrint.innerHTML=`<div>No hi ha àudios per mostrar.</div>`;return;}audios.forEach((audio,index)=>{zonaPrint.innerHTML+=`<div class="bg-white border border-gray-200 rounded-lg p-1"><div class="flex gap-2 items-center"><div class="text-xs font-bold text-pink-700 w-6">${index+1}.</div><div class="text-xs font-semibold text-orange-800">${audio.name}</div><div class="text-xs text-gray-500">(${audio.duration||"00:00"})</div></div></div>`;zonaVisible.innerHTML+=audioCard(audio,index,false);});}
+function imprimirLlistatDossiers(){mostrarLlistat();setTimeout(()=>window.print(),100);}function descarregarPDFDossiers(){imprimirLlistatDossiers();}function imprimirLlistatAudios(){mostrarLlistatAudios();setTimeout(()=>window.print(),100);}function descarregarPDFAudios(){imprimirLlistatAudios();}
+function prepararPrint(titol,subtitol,etiquetaTotal,total){document.getElementById("printTitle").innerHTML=titol;document.getElementById("printSubtitle").innerHTML=subtitol;document.getElementById("printTotalLabel").innerHTML=etiquetaTotal;document.getElementById("totalDossiersPrint").innerHTML=total;posarData();}
+ordenarDossiers();ordenarAudios();mostrarLlista();mostrarLlistaAudios();actualitzarContador();posarData();
+</script>
+</body>
+</html>
