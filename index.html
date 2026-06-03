@@ -250,6 +250,35 @@ function normalitzar(text){
         .replace(/[\u0300-\u036f]/g, "");
 }
 
+
+function prepararEnllacDescarrega(url){
+    const enllac = String(url || "").trim();
+    if(!enllac) return "";
+
+    // Amb enllaços compartits de OneDrive, aquest paràmetre sol forçar la descàrrega.
+    if(enllac.includes("download=1")) return enllac;
+
+    const separador = enllac.includes("?") ? "&" : "?";
+    return enllac + separador + "download=1";
+}
+
+function baixarDossier(url){
+    const enllac = prepararEnllacDescarrega(url);
+    if(!enllac){
+        alert("Aquest dossier no té cap enllaç associat.");
+        return;
+    }
+
+    const a = document.createElement("a");
+    a.href = enllac;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
 function obtenirCamp(item, noms){
     for(const nom of noms){
         if(item[nom] !== undefined && item[nom] !== null && String(item[nom]).trim() !== ""){
@@ -656,7 +685,7 @@ function mostrarResultats(data){
                 </div>
                 <div class="flex gap-3 flex-wrap">
                     <button onclick="window.open('${doc.linkDossier}','_blank')" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-xl shadow">Obrir dossier</button>
-                    <button onclick="window.open('${doc.linkDossier}','_blank')" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl shadow">Obrir enllaç</button>
+                    <button onclick="baixarDossier('${doc.linkDossier}')" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl shadow">Baixar dossier</button>
                 </div>
             </div>
         </div>`;
