@@ -151,12 +151,13 @@ body *{visibility:hidden;}
 </div>
 <div>
 <label class="font-bold">Duració</label>
-<input type="text" id="audioDuration" class="w-full p-3 border rounded-xl mt-2" placeholder="Exemple: 00:12:35">
+<input type="text" id="audioDuration" class="w-full p-3 border rounded-xl mt-2" placeholder="Exemple: 01:15:00">
 </div>
 <div class="lg:col-span-2">
 <label class="font-bold">Enllaç de l'àudio</label>
 <input type="url" id="linkAudio" class="w-full p-3 border rounded-xl mt-2" placeholder="Enganxa aquí l'enllaç de OneDrive o YouTube no llistat">
 <p class="text-sm text-gray-600 mt-2">Primer puja l'àudio a OneDrive o YouTube no llistat i després enganxa aquí l'enllaç compartit.</p>
+<p class="text-sm text-orange-700 mt-2 font-semibold">La duració s'ha d'escriure manualment en format HH:MM:SS. Exemple: 01:15:00.</p>
 </div>
 </div>
 <button id="guardarAudioBtn" class="mt-8 bg-orange-600 hover:bg-orange-700 transition text-white px-8 py-4 rounded-2xl text-xl shadow-xl">Guardar àudio</button>
@@ -259,9 +260,31 @@ function obtenirCamp(item, noms){
 }
 
 function normalitzarDuracio(valor){
-    const text = String(valor || "").trim();
-    if(!text) return "00:00:00";
+    const textOriginal = String(valor || "").trim();
+    if(!textOriginal) return "00:00:00";
 
+    // Si Google Sheets retorna una data/hora tipus 1899-12-30T01:15:00.000Z,
+    // ens quedem només amb l'hora exacta.
+    let text = textOriginal;
+    const horaISO = textOriginal.match(/T(\d{2}):(\d{2}):(\d{2})/);
+    if(horaISO){
+        return horaISO[1] + ":" + horaISO[2] + ":" + horaISO[3];
+    }
+
+    // Si Google Sheets retorna una fracció de dia, per exemple 0.0520833333 = 01:15:00.
+    // Això passa sovint amb cel·les formatades com a hora/durada.
+    if(/^\d*\.\d+$/.test(text)){
+        const numero = Number(text);
+        if(isFinite(numero) && numero >= 0 && numero < 1){
+            const total = Math.round(numero * 24 * 60 * 60);
+            const h = Math.floor(total / 3600);
+            const m = Math.floor((total % 3600) / 60);
+            const s = total % 60;
+            return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+        }
+    }
+
+    // Si és només un número sencer, l'interpretem com a segons. Exemple: 4500 -> 01:15:00.
     if(/^\d+$/.test(text)){
         const total = Number(text);
         const h = Math.floor(total / 3600);
@@ -271,15 +294,15 @@ function normalitzarDuracio(valor){
     }
 
     const parts = text.split(":").map(p => p.trim()).filter(p => p !== "");
-    if(parts.length === 1){
-        const segons = Number(parts[0]);
-        if(!isNaN(segons)) return "00:00:" + String(segons).padStart(2,"0");
-    }
+
+    // Si escrius mm:ss, ho convertim a HH:MM:SS. Exemple: 01:20 -> 00:01:20.
     if(parts.length === 2){
         const m = Number(parts[0]) || 0;
         const s = Number(parts[1]) || 0;
         return "00:" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
     }
+
+    // Format correcte: HH:MM:SS. El mantenim sempre així.
     if(parts.length === 3){
         const h = Number(parts[0]) || 0;
         const m = Number(parts[1]) || 0;
@@ -287,7 +310,7 @@ function normalitzarDuracio(valor){
         return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
     }
 
-    return text;
+    return textOriginal;
 }
 
 async function carregarDadesGoogleSheets(){
@@ -656,7 +679,7 @@ function llegirDuracioAudio(){
         document.getElementById("audioDuration").value = formatDuration(audio.duration);
     };
     audio.onerror = function(){
-        document.getElementById("audioDuration").value = "00:00";
+        document.getElementById("audioDuration").value = "00:00:00";
     };
     audio.src = URL.createObjectURL(file);
 }
@@ -878,5 +901,3 @@ carregarDadesGoogleSheets();
 </script>
 </body>
 </html>
-
-
