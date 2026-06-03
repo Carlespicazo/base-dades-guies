@@ -536,9 +536,11 @@ async function guardarDossier(){
             return;
         }
 
-        const dossier = { id: Date.now(), name, pages, linkDossier };
+        const esEdicio = editIndex !== null;
+        const dossierId = esEdicio && dossiers[editIndex] && dossiers[editIndex].id ? dossiers[editIndex].id : Date.now();
+        const dossier = { id: dossierId, name, pages, linkDossier };
 
-        if(editIndex !== null){
+        if(esEdicio){
             dossiers[editIndex] = dossier;
             editIndex = null;
         }else{
@@ -546,6 +548,7 @@ async function guardarDossier(){
         }
 
         await guardarAGoogleSheets({
+            Accio: esEdicio ? "actualitzar" : "crear",
             Tipus:"Dossier",
             ID:dossier.id,
             Nom:name,
@@ -558,7 +561,7 @@ async function guardarDossier(){
         ordenarDossiers();
         mostrarLlista();
         actualitzarContador();
-        document.getElementById("missatge").innerHTML = "Dossier guardat correctament a Google Sheets";
+        document.getElementById("missatge").innerHTML = "Dossier desat correctament a Google Sheets";
         netejarFormulari();
     }catch(error){
         console.log(error);
@@ -733,9 +736,11 @@ async function guardarAudio(){
             return;
         }
 
-        const audio = { id: Date.now(), name, duration, linkAudio };
+        const esEdicio = editAudioIndex !== null;
+        const audioId = esEdicio && audios[editAudioIndex] && audios[editAudioIndex].id ? audios[editAudioIndex].id : Date.now();
+        const audio = { id: audioId, name, duration, linkAudio };
 
-        if(editAudioIndex !== null){
+        if(esEdicio){
             audios[editAudioIndex] = audio;
             editAudioIndex = null;
         }else{
@@ -743,6 +748,7 @@ async function guardarAudio(){
         }
 
         await guardarAGoogleSheets({
+            Accio: esEdicio ? "actualitzar" : "crear",
             Tipus:"Audio",
             ID:audio.id,
             Nom:name,
@@ -755,7 +761,7 @@ async function guardarAudio(){
         ordenarAudios();
         mostrarLlistaAudios();
         actualitzarContador();
-        document.getElementById("missatgeAudio").innerHTML = "Àudio guardat correctament a Google Sheets";
+        document.getElementById("missatgeAudio").innerHTML = "Àudio desat correctament a Google Sheets";
         netejarFormulariAudio();
     }catch(error){
         console.log(error);
