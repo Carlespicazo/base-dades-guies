@@ -684,8 +684,7 @@ function mostrarResultats(data){
                     <div class="text-sm text-gray-600 mt-1">${doc.pages} pàgines</div>
                 </div>
                 <div class="flex gap-3 flex-wrap">
-                    <button onclick="window.open('${doc.linkDossier}','_blank')" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-xl shadow">Obrir dossier</button>
-                    <button onclick="baixarDossier('${doc.linkDossier}')" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl shadow">Baixar dossier</button>
+                    <button onclick="window.open('${doc.linkDossier}','_blank')" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-xl shadow">📄 Accés dossier</button>
                 </div>
             </div>
         </div>`;
@@ -797,7 +796,7 @@ function audioCard(audio, index, admin){
                 </div>
                 <div class="flex gap-3 flex-wrap">
                     ${editButtons}
-                    <button onclick="window.open('${audio.linkAudio}','_blank')" class="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl shadow">Obrir àudio</button>
+                    <button onclick="window.open('${audio.linkAudio}','_blank')" class="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl shadow">🎧 Accés àudio</button>
                 </div>
             </div>
         </div>
