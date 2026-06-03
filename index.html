@@ -646,12 +646,27 @@ function editarDossier(index){
     window.scrollTo({top:0, behavior:'smooth'});
 }
 
-function eliminarDossier(index){
-    if(confirm("Vols eliminar aquest dossier?")){
-        dossiers.splice(index,1);
-        ordenarDossiers();
-                mostrarLlista();
-        actualitzarContador();
+async function eliminarDossier(index){
+    const doc = dossiers[index];
+    if(!doc) return;
+
+    if(confirm("Vols eliminar aquest dossier definitivament?")){
+        try{
+            await guardarAGoogleSheets({
+                Accio: "eliminar",
+                Tipus: "Dossier",
+                ID: doc.id
+            });
+
+            dossiers.splice(index,1);
+            ordenarDossiers();
+            mostrarLlista();
+            actualitzarContador();
+            document.getElementById("missatge").innerHTML = "Dossier eliminat correctament de Google Sheets";
+        }catch(error){
+            console.log(error);
+            alert("Error eliminant el dossier de Google Sheets");
+        }
     }
 }
 
@@ -837,12 +852,27 @@ function editarAudio(index){
     window.scrollTo({top:0, behavior:'smooth'});
 }
 
-function eliminarAudio(index){
-    if(confirm("Vols eliminar aquest àudio?")){
-        audios.splice(index,1);
-        ordenarAudios();
-                mostrarLlistaAudios();
-        actualitzarContador();
+async function eliminarAudio(index){
+    const audio = audios[index];
+    if(!audio) return;
+
+    if(confirm("Vols eliminar aquest àudio definitivament?")){
+        try{
+            await guardarAGoogleSheets({
+                Accio: "eliminar",
+                Tipus: "Audio",
+                ID: audio.id
+            });
+
+            audios.splice(index,1);
+            ordenarAudios();
+            mostrarLlistaAudios();
+            actualitzarContador();
+            document.getElementById("missatgeAudio").innerHTML = "Àudio eliminat correctament de Google Sheets";
+        }catch(error){
+            console.log(error);
+            alert("Error eliminant l'àudio de Google Sheets");
+        }
     }
 }
 
