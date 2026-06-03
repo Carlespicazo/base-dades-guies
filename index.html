@@ -151,7 +151,7 @@ body *{visibility:hidden;}
 </div>
 <div>
 <label class="font-bold">Duració</label>
-<input type="text" id="audioDuration" class="w-full p-3 border rounded-xl mt-2" placeholder="Exemple: 12:35">
+<input type="text" id="audioDuration" class="w-full p-3 border rounded-xl mt-2" placeholder="Exemple: 00:12:35">
 </div>
 <div class="lg:col-span-2">
 <label class="font-bold">Enllaç de l'àudio</label>
@@ -249,6 +249,47 @@ function normalitzar(text){
         .replace(/[\u0300-\u036f]/g, "");
 }
 
+function obtenirCamp(item, noms){
+    for(const nom of noms){
+        if(item[nom] !== undefined && item[nom] !== null && String(item[nom]).trim() !== ""){
+            return String(item[nom]).trim();
+        }
+    }
+    return "";
+}
+
+function normalitzarDuracio(valor){
+    const text = String(valor || "").trim();
+    if(!text) return "00:00:00";
+
+    if(/^\d+$/.test(text)){
+        const total = Number(text);
+        const h = Math.floor(total / 3600);
+        const m = Math.floor((total % 3600) / 60);
+        const s = total % 60;
+        return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    }
+
+    const parts = text.split(":").map(p => p.trim()).filter(p => p !== "");
+    if(parts.length === 1){
+        const segons = Number(parts[0]);
+        if(!isNaN(segons)) return "00:00:" + String(segons).padStart(2,"0");
+    }
+    if(parts.length === 2){
+        const m = Number(parts[0]) || 0;
+        const s = Number(parts[1]) || 0;
+        return "00:" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    }
+    if(parts.length === 3){
+        const h = Number(parts[0]) || 0;
+        const m = Number(parts[1]) || 0;
+        const s = Number(parts[2]) || 0;
+        return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    }
+
+    return text;
+}
+
 async function carregarDadesGoogleSheets(){
     try{
         const resposta = await fetch(GOOGLE_SCRIPT_URL);
@@ -257,19 +298,19 @@ async function carregarDadesGoogleSheets(){
         dossiers = dades
             .filter(item => item.Tipus === "Dossier")
             .map(item => ({
-                id: item.ID || Date.now(),
-                name: item.Nom || "",
-                pages: item.Pagines || "",
-                linkDossier: item.LinkDossier || ""
+                id: obtenirCamp(item, ["ID", "Id", "id"]) || Date.now(),
+                name: obtenirCamp(item, ["Nom", "name", "Titol", "Títol"]),
+                pages: obtenirCamp(item, ["Pagines", "Pàgines", "Pages", "pages"]),
+                linkDossier: obtenirCamp(item, ["LinkDossier", "linkDossier", "Enllaç del dossier", "Enllac del dossier", "Enllaç", "Enllac", "Link", "URL", "Url"])
             }));
 
         audios = dades
             .filter(item => item.Tipus === "Audio")
             .map(item => ({
-                id: item.ID || Date.now(),
-                name: item.Nom || "",
-                duration: item.Duracio || "",
-                linkAudio: item.LinkAudio || ""
+                id: obtenirCamp(item, ["ID", "Id", "id"]) || Date.now(),
+                name: obtenirCamp(item, ["Nom", "name", "Titol", "Títol"]),
+                duration: normalitzarDuracio(obtenirCamp(item, ["Duracio", "Duració", "duration", "Durada"])),
+                linkAudio: obtenirCamp(item, ["LinkAudio", "linkAudio", "Enllaç de l'àudio", "Enllac de l'audio", "Enllaç", "Enllac", "Link", "URL", "Url"])
             }));
 
         ordenarDossiers();
@@ -292,11 +333,8 @@ async function guardarAGoogleSheets(registre){
 }
 
 function formatDuration(seconds){
-    if(!seconds || !isFinite(seconds)) return "00:00";
-    const total = Math.round(seconds);
-    const min = Math.floor(total / 60);
-    const sec = total % 60;
-    return String(min).padStart(2,"0") + ":" + String(sec).padStart(2,"0");
+    if(!seconds || !isFinite(seconds)) return "00:00:00";
+    return normalitzarDuracio(String(Math.round(seconds)));
 }
 
 function actualitzarContador(){
@@ -433,7 +471,11 @@ async function guardarDossier(){
     try{
         const name = document.getElementById("name").value.trim();
         const pages = document.getElementById("pages").value.trim();
-        const linkDossier = document.getElementById("linkDossier").value.trim();
+        let linkDossier = document.getElementById("linkDossier").value.trim();
+
+        if(editIndex !== null && !linkDossier && dossiers[editIndex] && dossiers[editIndex].linkDossier){
+            linkDossier = dossiers[editIndex].linkDossier;
+        }
 
         if(!name || !pages || !linkDossier){
             alert("Omple el nom del dossier, el número de pàgines i l'enllaç");
@@ -626,8 +668,12 @@ async function guardarAudio(){
 
     try{
         const name = document.getElementById("audioName").value.trim();
-        const duration = document.getElementById("audioDuration").value.trim();
-        const linkAudio = document.getElementById("linkAudio").value.trim();
+        const duration = normalitzarDuracio(document.getElementById("audioDuration").value.trim());
+        let linkAudio = document.getElementById("linkAudio").value.trim();
+
+        if(editAudioIndex !== null && !linkAudio && audios[editAudioIndex] && audios[editAudioIndex].linkAudio){
+            linkAudio = audios[editAudioIndex].linkAudio;
+        }
 
         if(!name || !linkAudio){
             alert("Escriu el nom de la pista i enganxa l'enllaç de l'àudio");
@@ -695,8 +741,7 @@ function audioCard(audio, index, admin){
             <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
                 <div>
                     <div class="font-bold text-xl text-orange-700">${audio.name}</div>
-                    <div class="text-sm text-gray-600 mt-1">Duració: ${audio.duration || "No indicada"}</div>
-                    <div class="text-sm text-gray-500 mt-1 break-all">${audio.linkAudio || ""}</div>
+                    <div class="text-sm text-gray-600 mt-1">Duració: ${normalitzarDuracio(audio.duration)}</div>
                 </div>
                 <div class="flex gap-3 flex-wrap">
                     ${editButtons}
@@ -728,7 +773,7 @@ function aturarAltresAudios(button){
 function editarAudio(index){
     const audio = audios[index];
     document.getElementById("audioName").value = audio.name;
-    document.getElementById("audioDuration").value = audio.duration || "";
+    document.getElementById("audioDuration").value = normalitzarDuracio(audio.duration);
     document.getElementById("linkAudio").value = audio.linkAudio || "";
     editAudioIndex = index;
     document.getElementById("missatgeAudio").innerHTML = "Estàs editant aquest àudio. Si no esculls cap fitxer nou, es conservarà l'actual.";
@@ -792,7 +837,7 @@ function mostrarLlistatAudios(){
             <div class="flex gap-2 items-center">
                 <div class="text-xs font-bold text-pink-700 w-6">${index + 1}.</div>
                 <div class="text-xs font-semibold text-orange-800">${audio.name}</div>
-                <div class="text-xs text-gray-500">(${audio.duration || "00:00"})</div>
+                <div class="text-xs text-gray-500">(${normalitzarDuracio(audio.duration)})</div>
             </div>
         </div>`;
 
@@ -833,4 +878,5 @@ carregarDadesGoogleSheets();
 </script>
 </body>
 </html>
+
 
