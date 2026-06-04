@@ -344,7 +344,7 @@ function normalitzarDuracio(valor){
 
 async function carregarDadesGoogleSheets(){
     try{
-        const resposta = await fetch(GOOGLE_SCRIPT_URL + "?t=" + Date.now());
+        const resposta = await fetch(GOOGLE_SCRIPT_URL);
         const dades = await resposta.json();
 
         dossiers = dades
@@ -657,19 +657,20 @@ async function eliminarDossier(index){
             const resposta = await guardarAGoogleSheets({
                 Accio: "eliminar",
                 Tipus: "Dossier",
-                ID: String(doc.id || "").trim(),
+                ID: doc.id || "",
                 Nom: doc.name || "",
-                LinkDossier: doc.linkDossier || ""
+                LinkDossier: doc.linkDossier || "",
+                LinkAudio: "",
+                Duracio: ""
             });
 
-            if(!resposta || resposta.status !== "ok" || Number(resposta.deletedRows || 0) === 0){
-                alert("No s'ha trobat el dossier al Google Sheet. Revisa si l'ID coincideix.");
+            if(resposta && resposta.status === "ok"){
                 await carregarDadesGoogleSheets();
-                return;
+                document.getElementById("missatge").innerHTML = "Dossier eliminat correctament de Google Sheets";
+            }else{
+                console.log("Resposta eliminació dossier:", resposta);
+                alert("No s'ha pogut eliminar el dossier. Revisa que el registre existeixi al Google Sheet.");
             }
-
-            await carregarDadesGoogleSheets();
-            document.getElementById("missatge").innerHTML = "Dossier eliminat correctament del Google Sheet";
         }catch(error){
             console.log(error);
             alert("Error eliminant el dossier de Google Sheets");
@@ -868,19 +869,20 @@ async function eliminarAudio(index){
             const resposta = await guardarAGoogleSheets({
                 Accio: "eliminar",
                 Tipus: "Audio",
-                ID: String(audio.id || "").trim(),
+                ID: audio.id || "",
                 Nom: audio.name || "",
-                LinkAudio: audio.linkAudio || ""
+                LinkDossier: "",
+                LinkAudio: audio.linkAudio || "",
+                Duracio: audio.duration || ""
             });
 
-            if(!resposta || resposta.status !== "ok" || Number(resposta.deletedRows || 0) === 0){
-                alert("No s'ha trobat l'àudio al Google Sheet. Revisa si l'ID coincideix.");
+            if(resposta && resposta.status === "ok"){
                 await carregarDadesGoogleSheets();
-                return;
+                document.getElementById("missatgeAudio").innerHTML = "Àudio eliminat correctament de Google Sheets";
+            }else{
+                console.log("Resposta eliminació àudio:", resposta);
+                alert("No s'ha pogut eliminar l'àudio. Revisa que el registre existeixi al Google Sheet.");
             }
-
-            await carregarDadesGoogleSheets();
-            document.getElementById("missatgeAudio").innerHTML = "Àudio eliminat correctament del Google Sheet";
         }catch(error){
             console.log(error);
             alert("Error eliminant l'àudio de Google Sheets");
