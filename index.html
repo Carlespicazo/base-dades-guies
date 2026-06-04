@@ -348,22 +348,24 @@ async function carregarDadesGoogleSheets(){
         const dades = await resposta.json();
 
         dossiers = dades
-            .filter(item => item.Tipus === "Dossier")
+            .filter(item => String(obtenirCamp(item, ["Tipus", "tipus", "Tipo", "type"])).trim() === "Dossier")
             .map(item => ({
-                id: obtenirCamp(item, ["ID", "Id", "id"]) || Date.now(),
+                id: obtenirCamp(item, ["ID", "Id", "id"]),
                 name: obtenirCamp(item, ["Nom", "name", "Titol", "Títol"]),
                 pages: obtenirCamp(item, ["Pagines", "Pàgines", "Pages", "pages"]),
                 linkDossier: obtenirCamp(item, ["LinkDossier", "linkDossier", "Enllaç del dossier", "Enllac del dossier", "Enllaç", "Enllac", "Link", "URL", "Url"])
-            }));
+            }))
+            .filter(doc => String(doc.name || "").trim() !== "" && String(doc.linkDossier || "").trim() !== "");
 
         audios = dades
-            .filter(item => item.Tipus === "Audio")
+            .filter(item => String(obtenirCamp(item, ["Tipus", "tipus", "Tipo", "type"])).trim() === "Audio")
             .map(item => ({
-                id: obtenirCamp(item, ["ID", "Id", "id"]) || Date.now(),
+                id: obtenirCamp(item, ["ID", "Id", "id"]),
                 name: obtenirCamp(item, ["Nom", "name", "Titol", "Títol"]),
                 duration: normalitzarDuracio(obtenirCamp(item, ["Duracio", "Duració", "duration", "Durada"])),
                 linkAudio: obtenirCamp(item, ["LinkAudio", "linkAudio", "Enllaç de l'àudio", "Enllac de l'audio", "Enllaç", "Enllac", "Link", "URL", "Url"])
-            }));
+            }))
+            .filter(audio => String(audio.name || "").trim() !== "" && String(audio.linkAudio || "").trim() !== "");
 
         ordenarDossiers();
         ordenarAudios();
